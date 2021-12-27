@@ -11,6 +11,10 @@ Pokemon is a series of video games published by Nintendo where a player can take
 
 In this project, we will explore the various traits and attributes of pokemon, and dive into predicting which Pokemon will win in a battle against other Pokemon. 
 
+We will use this dataset found on Kaggle: https://www.kaggle.com/rounakbanik/pokemon
+
+*Note: I found that this dataset does not have ALL Pokemon, so results may be inaccurate due to missing information. *
+
 ## Libraries Needed
 ```{r, message = FALSE}
 library(tidyverse)
@@ -47,13 +51,22 @@ setcolors = c("Fire" = "#EE8130", "Normal" = "#A8A77A", "Water" = "#6390F0", "Gr
 fill_colors = scale_fill_manual(values = setcolors)
 ```
 
-```{r}
+```{r, include = FALSE}
 types_count <- table(pokemon$type_1) + table(pokemon$type_2)
 types_count_df <- as.data.frame(types_count)
 ```
 
-
-```{r}
+```{r, echo = FALSE}
 ggplot(data = types_count_df, aes(x = reorder(Var1, Freq), y = Freq, fill = Var1)) + geom_bar(stat = "identity") + fill_colors + coord_flip() + labs(title = "Distribution of Pokemon Types", x = "Type", y = "Frequency")
 ```
+
+We see that Water is the most frequent Pokemon type, with Ice being the least frequent. 
+
+Now, let's explore different type combinations and see which of them are the most popular. 
+
+```{r}
+table(pokemon$type_1, pokemon$type_2) + table(pokemon$type_2, pokemon$type_1)
+```
+
+We see that the Normal/Flying Pokemon type combination is the most common. It's also interesting to note that there are a lot of type combinations that haven't been produced yet. Let's get a list of all the type combinations that haven't been made yet, and it'll give Nintendo an idea of what new Pokemon they could make. 
 
