@@ -1,0 +1,59 @@
+---
+title: "Pokemon Analysis"
+output: html_notebook
+---
+
+# Introduction
+
+## Introduction to Pokemon
+
+Pokemon is a series of video games published by Nintendo where a player can take an adventure through their region. While on your adventure, you will encounter many Pokemon and have the opportunity to both capture and battle them. 
+
+In this project, we will explore the various traits and attributes of pokemon, and dive into predicting which Pokemon will win in a battle against other Pokemon. 
+
+## Libraries Needed
+```{r, message = FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+```
+
+## Loading the Dataset: 
+```{r}
+# We will begin with pokemon.csv first and do some EDA on the file
+pokemon <- read_csv('pokemon.csv')
+head(pokemon)
+```
+
+Since each column has spaces, we want to reformat it so it will be easier to perform data analysis on them. 
+
+```{r}
+names(pokemon) <- gsub(" ", "_", names(pokemon))
+names(pokemon) <- gsub("\\.", "", names(pokemon))
+names(pokemon) <- tolower(names(pokemon))
+head(pokemon)
+```
+
+
+# Exploratory Data Analysis
+
+Let's begin by exploring each Pokemon type. 
+
+However, Pokemon may have two types and we want to count these type frequencies including their second type. To do this, we will make a new dataframe before making our boxplot directly, and sum up their types there. 
+
+```{r, include = FALSE}
+# For aesthetic reasons
+setcolors = c("Fire" = "#EE8130", "Normal" = "#A8A77A", "Water" = "#6390F0", "Grass" = "#7AC74C", "Electric" = "#F7D02C", "Ice" = "#96D9D6", "Fighting" = "#C22E28", "Poison" = "#A33EA1", "Ground" = "#E2BF65", "Flying" = "#A98FF3", "Psychic" = "#F95587", "Bug" = "#A6B91A", "Rock" = "#B6A136", "Ghost" = "#735797", "Dragon" = "#6F35FC", "Dark" = "#705746", "Steel" = "#B7B7CE", "Fairy" = "#D685AD")
+fill_colors = scale_fill_manual(values = setcolors)
+```
+
+```{r}
+types_count <- table(pokemon$type_1) + table(pokemon$type_2)
+types_count_df <- as.data.frame(types_count)
+```
+
+
+```{r}
+ggplot(data = types_count_df, aes(x = reorder(Var1, Freq), y = Freq, fill = Var1)) + geom_bar(stat = "identity") + fill_colors + coord_flip() + labs(title = "Distribution of Pokemon Types", x = "Type", y = "Frequency")
+```
+
