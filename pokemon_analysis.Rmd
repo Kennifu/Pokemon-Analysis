@@ -20,6 +20,7 @@ We will use this dataset found on Kaggle: https://www.kaggle.com/rounakbanik/pok
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
+library(reshape2)
 ```
 
 ## Loading the Dataset: 
@@ -48,7 +49,7 @@ However, Pokemon may have two types and we want to count these type frequencies 
 ```{r, include = FALSE}
 # For aesthetic reasons
 setcolors = c("Fire" = "#EE8130", "Normal" = "#A8A77A", "Water" = "#6390F0", "Grass" = "#7AC74C", "Electric" = "#F7D02C", "Ice" = "#96D9D6", "Fighting" = "#C22E28", "Poison" = "#A33EA1", "Ground" = "#E2BF65", "Flying" = "#A98FF3", "Psychic" = "#F95587", "Bug" = "#A6B91A", "Rock" = "#B6A136", "Ghost" = "#735797", "Dragon" = "#6F35FC", "Dark" = "#705746", "Steel" = "#B7B7CE", "Fairy" = "#D685AD")
-fill_colors = scale_fill_manual(values = setcolors)
+fill_colors = scale_fill_manual(values = setcolors, name = "")
 ```
 
 ```{r, include = FALSE}
@@ -65,8 +66,32 @@ We see that Water is the most frequent Pokemon type, with Ice being the least fr
 Now, let's explore different type combinations and see which of them are the most popular. 
 
 ```{r}
-table(pokemon$type_1, pokemon$type_2) + table(pokemon$type_2, pokemon$type_1)
+combinations = table(pokemon$type_1, pokemon$type_2) + table(pokemon$type_2, pokemon$type_1)
+combinations_df = as.data.frame(combinations)
 ```
 
+```{r}
+ggplot(data = combinations_df, aes(x = Var1, y = Var2, fill = sqrt(Freq))) + geom_tile() + scale_fill_gradient2(low = "white", high = "blue") + labs(x = "Type 1", y = "Type 2", title = "Frequency of Different Pokemon Type Combinations", subtitle = "Where Order of Typing Does Not Matter") + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+
 We see that the Normal/Flying Pokemon type combination is the most common. It's also interesting to note that there are a lot of type combinations that haven't been produced yet. Let's get a list of all the type combinations that haven't been made yet, and it'll give Nintendo an idea of what new Pokemon they could make. 
+
+```{r}
+not_produced <- subset(x = combinations_df, subset = (Freq == 0 & Var1 != Var2))
+nrow(not_produced)
+```
+
+So far, Pokemon has 34 type combinations that they have yet to produce. 
+
+Now we wonder: What would be the effectiveness of each of these type combinations if they were added to the game?
+
+To do this, we will measure each combination's weaknesses and strengths, and see if any of them are stronger or weaker than normal. 
+
+We will use a chart of type weaknesses and strengths, found on: https://github.com/zonination/pokemon-chart/blob/c6c3d4e982e9f6d49055dcfd396a148da1c6cd2b/chart.csv
+
+```{r, include = FALSE}
+chart <- read_csv('chart.csv')
+```
+
 
